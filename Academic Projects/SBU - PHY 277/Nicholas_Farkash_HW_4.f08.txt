@@ -1,0 +1,41 @@
+  ! Name: Nicholas Farkash
+  ! Purpose: To write a program with an intrinsic function
+  ! Date: September 13, 2021
+  ! Due: September 17, 2021 at 6:00 PM
+
+! Note: The two kinetic energies do not always agree. For smaller speeds,
+! the reletavistic calculation returns a value of zero. This is because
+! it calculates a small value divided by a large number, producing a very
+! small number. This very small number is rounded off to zero, as Fortran
+! cannot accurately store all of these numbers. This produces gamma equal
+! to 1, which produces a KE of magnitude zero.
+
+program HW_4
+  implicit none
+
+  real :: speed                         ! in m/s
+  real :: mass                          ! in kg
+  real, parameter :: C = 2.99792458e8   ! Speed of light in m/s
+
+  real :: gamma               ! The Lorentz factor
+  real :: gamma_root          ! The sqrt function of Lorentz factor
+  real :: ke_nonrel           ! Non-relativistic Kinetic Energy
+  real :: ke_rel              ! Relativistic Kinetic Energy
+  
+  write(*,*) "Enter a mass in kilograms."
+  read(*,*) mass
+
+  write(*,*) "Enter a speed in meters per second."
+  read (*,*) speed
+
+  gamma_root = sqrt(1 - ((speed**2)/(C**2))) !Broken up into two parts
+  gamma = 1 / gamma_root                     !For easier calculations
+  
+  ke_rel = mass * C**2 * (gamma - 1)
+  ke_nonrel = (mass * speed**2) / 2.0
+
+  write(*,*) "The relativistic kinetic energy is",ke_rel,"joules."
+  write(*,*) "The non-relativistic kinetic energy is",ke_nonrel,"joules."
+  
+  stop 0
+end program HW_4

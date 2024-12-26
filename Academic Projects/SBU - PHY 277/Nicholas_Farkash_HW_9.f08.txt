@@ -1,0 +1,149 @@
+!Name: Nicholas Farkash
+!Purpose: Process an arbitrarily large set of real data from a file,compute
+!         the arithetic mean, median, and standard deviation of the data set,
+!         and write data to a file.
+!Date: October 27th, 2021
+!Due: November 1st, 2021 at 6:00PM
+
+program HW_9
+  implicit none
+
+  character(len=100) :: bufferread           !File name for data input
+  character(len=:),allocatable :: fnamein    !Trimmed version of name
+
+  integer :: lun                !LUN for referencing other files
+  integer :: ierror=0           !I/O erorr check
+
+  real :: x                     !Variable to read in data points
+  integer :: npts               !Number of data points read in
+
+  real, allocatable :: a(:)     !Allocatable array of unspecified dim.
+
+  integer :: i                  !Loop variable
+ 
+  real :: sumavg                !Sum while calculating the average
+  real :: avg                   !Average of the data points
+
+  real :: med                   !Median of the data points
+  
+  real :: sumstdv               !Sum while calculating the standard deviation
+  real :: stdv                  !Standard deviation of the data points
+
+  integer :: j                  !Loop variable
+  integer :: smallpos           !Position of the smallest value of array
+  real :: temp                  !Placeholder variable for swap during sort
+
+  character(len=100) :: bufferwrite           !File name for data output
+  character(len=:),allocatable :: fnameout    !Trimmed version of name
+
+  
+  
+  write(*,*) "Enter file name to read data from:"
+  read(*,*) bufferread                   !Read in the file for data input
+  fnamein = trim(bufferread)             !Trim the name to use in program
+
+  
+  open(newunit=lun,file=fnamein,status="old",iostat=ierror,action="read")
+   if(ierror /= 0)then
+      write(*,*) "Data failed to open!"         !Check to see if file can
+      stop 1                                    !be opened safely. If so,
+   endif                                        !open the file
+
+   
+   do while (ierror == 0)                       
+      read(lun,*,iostat=ierror) x               !Read in the data from 
+      if(ierror == 0) then                      !the specified file
+         npts = npts+1
+      else
+         exit
+      endif
+   enddo
+
+
+   allocate(a(npts))   !Set the length of array a equal to
+   rewind(lun)         !the number of data points read in
+
+   
+  write(*,*) "The number of points in this file is",npts
+
+  
+  do i=1,npts
+     read(lun,*) a(i)  !Read in the entire array
+  enddo
+
+  
+  close(unit=lun)      !Close the file being read from.
+
+
+  sumavg = 0.0e0
+  do i=1,npts
+     sumavg = sumavg + a(i)     !Calculate the mean of the data points
+  enddo
+  avg = sumavg / npts
+
+  
+  write(*,*) "The arithmetic mean of these values is",avg
+
+
+  if ( (-1.0)**npts < 0.0) then    !Determine whether the array has an even or odd
+     med = a((npts+1)/2)           !number of data points. Then calculate the
+  else                             !median value of the array
+     med = (a(npts/2) + a(npts/2 + 1)) / 2.0e0
+  endif
+
+  
+     write(*,*) "The median of these values is",med
+
+     
+  sumstdv = 0.0e0
+  do i=1,npts
+     sumstdv = sumstdv + ( a(i) - avg )**2   !Calculate the standard deviation of 
+  enddo                                      !the data points
+  stdv = sqrt(sumstdv / npts)
+
+  
+  write(*,*) "The standard deviation of these values is",stdv
+
+  
+  do j=1,npts-1
+     smallpos = j          !Assume the first position holds the smallest value     
+
+     do i=j+1,npts
+        if ( a(i) < a(smallpos)) then     !If another value has a smaller value,
+           smallpos = i                   !make it the new smallest
+        endif
+     enddo
+
+     temp = a(j)                  !Set the placeholder variable equal to the first unsorted value
+     a(j) = a(smallpos)           !Set the first value of the Sorted Array to the new smallest value
+     a(smallpos) = temp           !Replace the first unsorted value. This process swaps the locations.
+
+  enddo
+  
+
+  write(*,*) "Enter file name to write sorted data to:"
+  read(*,*) bufferwrite                 !Read in the file for data input
+  fnameout = trim(bufferwrite)          !Trim the name to use in program
+
+
+  open(newunit=lun,file=fnameout,status="new",iostat=ierror,action="write")  
+   if(ierror /= 0)then
+      write(*,*) "Data failed to write!"         !Check to see if file can
+      stop 1                                     !be opened safely. If so,
+   endif                                         !open the file
+
+   
+   
+  do j=1,npts
+     write(lun,*) j,a(j)         !Write the data to the specified file                
+  enddo
+
+  
+  close(unit=lun)                !Close the file being written to
+
+  
+  deallocate(a)                  !Deallocate the space for the array
+
+  
+  stop 0
+end program HW_9

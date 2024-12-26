@@ -1,0 +1,85 @@
+!Name: Nicholas Farkash
+!Purpose: To code Simpson's Rule as a Fortran code and to gain experience
+!         with carrying out convergence tests
+!Date: October 9th, 2021
+!Due:  October 15th, 2021 at 6:00PM
+
+! Below is a table of the results from the convergence test of this formula:
+!     n-subintervals           Sum
+
+!           1               234.821075
+!           2               9535.64258
+!           4               2540.69458
+!           8               1394.17346
+!           16              816.482727
+!           32              558.868530
+!           64              1016.58984
+!           128             946.500549
+!           256             944.039795
+!           512             944.042542
+!           1024            944.043579
+
+! I believe the most accurate value of the integral is around n = 512.
+! At this point, the value is not changing much, so it is safe to use this
+! value to  approximate the integral using Simpson's rule.
+
+
+program HW_8
+  implicit none
+
+  integer :: n                          ! Number of subintervals
+  integer :: i                          ! Loop index
+  real :: dx                            ! Width of interval
+  real :: xi                            ! Position of i-th sub interval
+  real :: fi                            ! Value at i-th subinterval
+  real :: fiphalf                       ! Value at (i+1/2)-th subinterval
+  real :: fip1                          ! Value at (i+1)-th subinterval
+  real :: sum                           ! Sum of function evaluated
+
+  real, parameter :: xlow = 1.0e0       ! Lower bound of integral
+  real, parameter :: xhigh = 20.0e0     ! Upper bound of integral
+
+  real, parameter :: A = 4.0e3
+  real, parameter :: B = 1.515e1        ! Paramaters given in instructions
+  real, parameter :: C = 0.01e0
+  
+  write(*,*) "Enter an integer value, n, for the number of subintervals:"
+  read(*,*) n
+  
+  dx = (xhigh-xlow) / (1.0e0*n) ! Calculate the width of one subinterval
+
+  sum = 0.0e0                   ! Initialize the sum
+  xi = xlow                     ! Initialize xi as the lower bound of integral
+
+  
+  do i=1,n,1                    ! Begin iterative do loop
+
+     
+     fi = ((xi+cos(xi)) * exp(cos(xi))) + A*exp(((-1.0e0) * ((xi-B)**2)) / C)
+        ! Evaluate function at i-th point
+       
+     fiphalf = ((0.5*dx + xi) + cos(0.5*dx + xi) * exp(cos(0.5*dx + xi))) + &
+          A*exp(((-1.0e0) * (((0.5*dx+xi)-B)**2)) / C)
+        ! Evaluate function at (1+1/2)-th point
+       
+     fip1 = ((xi+dx)+cos(xi+dx)) * exp(cos(xi+dx)) + &
+            A*exp(((-1.0e0) * (((xi+dx)-B)**2)) / C)
+        ! Evaluate function at (i+1)-th point
+
+     
+     sum = sum + (1.0/6.0)*(fi+fip1+(4*fiphalf))*dx
+     ! Use Simpson's Rule to approximate the area under the function,
+     ! then add that value to the running sum
+
+     
+     xi = xi+dx             ! Move to next point
+
+     
+  enddo                     ! End loop; return to start
+
+
+  write(*,*) "sum = ",sum   ! Display the approximate value of the integral
+
+  
+  stop 0
+end program HW_8

@@ -1,0 +1,38 @@
+  ! Name: Nicholas Farkash
+  ! Purpose: To write a program that takes user input, runs it through a
+  !          calculation, and outputs the results.
+  ! Date: Due September 14, 2021
+
+program HW_3
+  implicit none
+
+  real, parameter :: RH = 1.09677583e7    ! Rydberg Constant
+  integer :: n1                              ! Quantum Number 1
+  integer :: n2                              ! Quantum Number 2
+
+  ! Note: n1  must be greater than n2.
+
+  real :: frac_sub                        ! For easier calculations 
+  real :: wavelength_m                    ! Wavelength in meters
+  real :: wavelength_a                    ! Wavelength in Angstroms
+  
+  write(*,*) "Enter two integers for quantum numbers n1 and n2, respectively."
+  write(*,*) "Note: n1 must be greater than n2."
+  ! These statements direct the user to enter integers.
+  
+  read(*,*) n1,n2
+  ! Assign user input to variables.
+
+  frac_sub = (1.0 / n2**2) - (1.0 / n1**2)
+  wavelength_m =  1.0 / (RH * frac_sub)
+  ! Calculate the wavelength in meters given the user-input variables.
+
+  wavelength_a = wavelength_m * 1.0e10
+  ! Convert the wavelength in meters to Angstroms.
+  
+  write(*,*)"The wavelength for those quantum numbers is",wavelength_m,"meters."
+
+  write(*,*)"This is equivalent to",wavelength_a,"Angstroms."
+  
+  stop 0
+end program HW_3

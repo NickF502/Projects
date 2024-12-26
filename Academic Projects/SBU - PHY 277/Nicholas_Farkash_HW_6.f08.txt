@@ -1,0 +1,52 @@
+!Name: Nicholas Farkash
+!Purpose: To learn how to use nested if constructs (and also to take down
+        ! a zombie target!)
+!Date: September 28th, 2021
+!Due: October 1st, 2021
+
+program HW_6
+  implicit none
+
+  real :: xcoord               ! distance on x axis from ship to zombie in km.
+  real :: ycoord               ! distance on y axis from ship to zombie in km.
+  character(9) :: quadrant     ! The quadrant the zombie is located.
+  real :: range                ! Distance from ship to zombie.
+  real :: bearing              ! Angle zombie is at with respect to true North.
+  real, PARAMETER :: PI = 3.14159265
+  
+  write(*,*) "Enter the coordinates of the attacking zombie in", &
+             " kilometers relative to the ship!"
+  read(*,*) xcoord, ycoord    ! Read in values for zombie coordinates
+
+  if (xcoord > 0.0) then  
+     if (ycoord > 0.0) then
+        quadrant = "Northeast"         ! Zombie is in the Northeast quadrant
+     elseif (ycoord < 0.0) then 
+        quadrant = "Southeast"         ! Zombie is in the Southeast quadrant
+     endif
+  elseif (xcoord < 0.0) then
+     if (ycoord > 0.0) then
+        quadrant = "Northwest"         ! Zombie is in the Northwest quadrant
+     elseif (ycoord < 0.0) then
+        quadrant = "Southwest"         ! Zombie is in the Southwest quadrant
+     endif
+  endif
+
+   range = sqrt( (xcoord ** 2) + (ycoord ** 2) )          ! Distance to target
+   bearing = abs(  atan(ycoord / xcoord) * (180.0 / PI) ) ! Angle of target
+
+   if (quadrant == "Northeast") then          ! Calculate the angle relative
+      bearing = bearing                       ! to North
+   elseif (quadrant == "Southeast") then
+      bearing = 90.0 + bearing
+   elseif (quadrant == "Southwest") then
+      bearing = 180.0 + bearing
+   elseif (quadrant == "Northwest") then
+      bearing = 270.0 + bearing
+   endif
+   
+   write(*,*) "The zombie is",range,"kilometers away at a bearing of" &
+              ,bearing,"degrees. This is in the ",quadrant," quadrant."
+
+  stop 0
+end program HW_6

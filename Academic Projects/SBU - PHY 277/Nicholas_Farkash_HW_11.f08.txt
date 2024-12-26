@@ -1,0 +1,115 @@
+!Name: Nicholas Farkash
+!Purpose: To gain experience in using subroutines, user defined functions, and
+!         double precision arithmetic
+!Date: November 17th, 2021
+!Due:  November 19th, 2021 at 6:00PM
+
+! Below is a table of the results from the convergence test of this formula:
+!     n-subintervals   |        Sum
+!   --------------------------------------
+!           1          |    184.48739751180011
+!           2          |    9528.1912474632245
+!           4          |    2615.4960584441819
+!           8          |    1451.3606736361978
+!           16         |    867.13262534017360
+!           32         |    608.71671880657482
+!           64         |    1066.2418798754611
+!           128        |    996.10437846401067
+!           256        |    993.63147716542369
+!           512        |    993.63147464829160
+!           1024       |    993.63147170684556
+!           2048       |    993.63147239971954
+!           4096       |    993.63147109506997
+!           8192       |    993.63147196526700
+!           16384      |    993.63147052351144
+!           32768      |    993.63146963239853
+
+! With the addition of double precision, the values will converge to more digits.
+! With single precision, the value converged to only 3 decimals, but using double
+! precision, it converges to 5 digits roughly. The values are closest when n is
+! between 1024 and 2048. As such, the value of the integral can be approximated
+! to be the average of these two points, which is 993.63147205328255.
+
+
+program HW_8
+  implicit none
+
+  integer :: n                           ! Number of subintervals
+  integer :: i                           ! Loop index
+  real(kind=kind(1.0d0)) :: dx           ! Width of interval
+  real(kind=kind(1.0d0)) :: xi           ! Position of i-th sub interval
+  real(kind=kind(1.0d0)) :: fi           ! Value at i-th subinterval
+  real(kind=kind(1.0d0)) :: fiphalf      ! Value at (i+1/2)-th subinterval
+  real(kind=kind(1.0d0)) :: fip1         ! Value at (i+1)-th subinterval
+  real(kind=kind(1.0d0)) :: sum=0.0d0    ! Sum of function evaluated
+
+  real(kind=kind(1.0d0)) :: xhigh,xlow   ! Limits of integral
+  
+  real :: integrand                      ! Function subprogram
+
+  
+  write(*,*) "Enter an integer value, n, for the number of subintervals:"
+  read(*,*) n
+
+  
+  call Limits(xhigh, xlow)        ! Get the limits of integration from subprogram
+
+  
+  dx = (xhigh-xlow) / (1.0d0*n)   ! Calculate the width of one subinterval  
+  xi = xlow                       ! Initialize xi as the lower bound of integral
+
+ 
+  do i=1,n,1                      ! Begin iterative do loop
+
+  fi = integrand(xi)              ! Get the values for calculating the integral
+  fiphalf = integrand(0.5d0*dx+xi)  ! using Simpson's Rule from the function
+  fip1 = integrand(xi+dx)         ! subprogram below
+       
+  sum = sum + (1.0d0/6.0d0)*(fi+fip1+(4.0d0*fiphalf))*dx
+        ! Use Simpson's Rule to approximate the area under the function,
+        ! then add that value to the running sum
+
+  xi = xlow+i*dx  ! Directly calculate the new position to avoid additional error
+  
+  enddo                     ! End loop; return to start
+
+
+  write(*,*) "sum = ",sum   ! Display the approximate value of the integral
+
+  
+  stop 0
+end program HW_8
+
+! ------------------------------------------------------------------------------
+
+subroutine Limits (high_lim, low_lim) ! Create a subroutine to get the limits of
+! integration using dummy variables a and b
+
+  implicit none                
+  
+  real(kind=kind(1.0d0)), intent(out) :: high_lim, low_lim  ! Dummy variables
+
+  high_lim = 20.0d0      ! Set the upper limit
+  low_lim = 1.0d0        ! Set the lower limit
+  
+  return
+end subroutine Limits
+
+! ------------------------------------------------------------------------------
+
+real function integrand(p)  ! Create a function subprogram to calculate the
+! integrand at various points, using dummy variable p.
+  
+  implicit none
+  
+  real(kind=kind(1.0d0)), intent(in) :: p                 ! Dummy variable
+  real, parameter :: A = 4.0d3
+  real, parameter :: B = 1.515d1        ! Paramaters given in instructions
+  real, parameter :: C = 0.01d0
+ 
+  
+     integrand = ((p+cos(p)) * exp(cos(p))) + A*exp(((-1.0d0) * ((p-B)**2)) / C)
+        ! Evaluate function and various points p
+         
+    return
+end function integrand

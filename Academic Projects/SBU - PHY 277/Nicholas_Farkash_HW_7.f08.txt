@@ -1,0 +1,52 @@
+!Name: Nicholas Farkash
+!Purpose: To gain experience using iterative do loops for summation and
+!         products, as well as to think about algorithms.
+!Date: October 4th, 2021
+!Due: October 8th, 2021 at 6:00PM
+
+program HW_7
+  implicit none
+
+  integer :: n     ! Integer number and upper bound of summation
+  real :: x        ! Variable of summation formula
+  integer :: i     ! Loop index
+  real :: sum      ! Value of calculation
+  real :: denom    ! Denominator of summation; for easier calculation
+
+  
+  write(*,*) "Enter an integer value, n, and a real, positive value, x:"
+  read(*,*) n, x
+
+  sum = 0.0e0      ! Initialize variable "sum"
+  denom = 0.0e0    ! Initialize variable "denom"
+
+  do i=0,n,1       ! Begin iterative loop, from 0 to n
+
+     denom = denom * (2.0e0*i) * ( (2.0e0*i) - 1.0e0)
+
+     ! Calculate the denominator of the summation function
+
+     
+     if(i==0) then      ! Handle the case where i==0 to avoid
+        denom = 1.0e0   ! division by 0.0e0 in the denom calculation.
+     endif              ! Directly inserts the value of 0! as 1.0e0.
+
+     
+     ! According to the assignment, it is possible to calculate this
+     ! without using an if statement. I cannot figure out how to do this.
+     ! Grader, please comment how this is accomplished.
+
+
+     sum = sum + ( (-1.0e0)**i ) * ( (x**(2.0e0*i)) / (denom) )
+
+     ! Calculates the summation function by adding the newly calculated
+     ! sum to the previous sum.
+
+     
+  enddo            ! Ends iterative loop, returns to top of loop.
+
+  write(*,*) "The value of the summation function is",sum
+
+  
+  stop 0
+end program HW_7

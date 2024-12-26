@@ -1,0 +1,34 @@
+!Name: Nicholas Farkash
+!Purpose: To write a program with a block if construct to evaluate a
+!           piecewise function of two variables.
+!Date: September 22nd, 2021
+!Due: September 27th, 2021 at 6:00PM
+
+program HW_5
+  implicit none
+
+  real :: x                                 ! Input Variable 1
+  real :: y                                 ! Input Variable 2
+  real :: answer                            ! Value of function evaluated
+  
+  write(*,*) "Please enter real values for x and y."
+  read(*,*) x, y           ! Read in Variables 1 and 2      
+
+  if( (x**2 + y**2) < (1.0e0)) then
+     answer =  -1.0e0 + x**2 + y**2
+        ! Evaluate when x**2 + y**2 < 1
+     
+  elseif( (1.0e0) <= (x**2 + y**2) .and. (x**2 + y**2) < (2.0e0) ) then
+     answer = (exp( x**2 + y**2 - 1.0e0)) - 1.0e0
+        ! Evaluate when 1 <= x**2 + y**2 < 2
+      
+  else
+     answer = exp(1.0e0) - 1.0e0 + sin( x**2 + y**2 - 2.0e0)
+        ! Evaluate when all other statements are false (x**2 + y**2 >= 2)
+
+  endif
+
+  write(*,*) answer        ! Output the value of answer         
+  
+  stop 0                   ! Stop execution and return 0
+end program HW_5

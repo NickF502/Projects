@@ -1,0 +1,130 @@
+%Name: Nicholas Farkash
+%Purpose: To gain experience with producing a document using LaTeX
+%Date: November 29th, 2021
+%Due: December 6th 2021
+
+\documentclass[12pt]{article}
+\usepackage{epsfig}
+\begin {document}
+
+\begin{center}
+  Nicholas Farkash - Assignment 15
+\end{center}
+
+\section{Introduction}
+In Assignment 10, we used Poisson's Equation, a partial different equation, for
+a 2-D steady state electromagnetics problem to determine the electric potential
+of a system at a particular point. In this document, the process of determining
+this value will be briefly explored.
+
+
+\section{Equation}
+Poisson's Equation is a partial differential equation. When applied to our
+two-dimensional electomagnetics problem, it takes the form:
+
+\begin{equation} \frac{\partial^2 U}{\partial x^2} + \frac{\partial^2 U}{\partial
+                 y^2} = 4 \pi q \label{Poisson}
+\end{equation}
+
+where $U$ is the electrical potential and $q$ is the electrical charge density.
+
+In word form, this equation says that the second derivative of the electric
+potential with respect to the x direction plus the second derivative of the
+electric potential with respect to the y direction is equal to 4$\pi$ times
+the electrical charge density.
+
+\subsection{Finite-Difference Form}
+If we divide the box we are observing into square-shaped cells of sides $h$, we
+can refer to each individual cell by its location $U_{i,j}$, which we can then
+use to loop over in our calculations. By approximating the first derivatives of
+the electric potential at the edge of each cell, and then the second derivatives
+of the electric potential at the center of each cell, we can calculate the
+charge density of any particular cell.
+
+The first derivatives are approximated as follows:
+\begin{equation}
+  \left(\frac{\partial U}{\partial x}\right)_{i,j+\frac{1}{2}} \approx
+  \frac{U_{i,j+1}-U_{i,j}}{h}
+\hspace{24pt}
+  \left(\frac{\partial U}{\partial y}\right)_{i+\frac{1}{2},j} \approx
+  \frac{U_{i+1,j}-U_{i,j}}{h}
+\end{equation} 
+
+\vspace{34pt}
+
+The second derivatives are approximated as follows:
+
+\begin{equation}
+  \left(\frac{\partial^2 U}{\partial x^2}\right)_{i,j} \approx \frac{\left(
+  \frac{\partial U}{\partial x}\right)_{i,j+\frac{1}{2}} - \left(\frac{\partial
+  U}{\partial x}\right)_{i,j-\frac{1}{2}}}{h} = \frac{U_{i,j+1}-2U_{i,j}+
+  U_{i,j-1}}{h^2} \label{secondx}
+\end{equation}
+
+\begin{equation}
+  \left(\frac{\partial^2 U}{\partial y^2}\right)_{i,j} \approx \frac{\left(
+  \frac{\partial U}{\partial y}\right)_{i+\frac{1}{2},j} - \left(\frac{\partial
+  U}{\partial y}\right)_{i-\frac{1}{2},j}}{h} = \frac{U_{i+1,j}-2U_{i,j}+
+  U_{i-1,j}}{h^2} \label{secondy}
+\end{equation}
+
+
+We can insert equations (\ref{secondx}) and (\ref{secondy}) into equation
+(\ref{Poisson}) and produce the following equation:
+
+\begin{equation}
+  \frac{U_{i+1,j} + U_{i-1,j} + U_{i,j+1} + U_{i,j-1} - 4U_{i,j}}{h^2}=4
+  \pi q_{i,j} \label{FinDiffForm}
+\end{equation}
+
+Solving equation (\ref{FinDiffForm}) for $U_{i,j}$ yields:
+
+\begin{equation}
+  \frac{U_{i+1,j} + U_{i-1,j} + U_{i,j+1} + U_{i,j-1} - 4 \pi h^2 q_{i,j}}
+  {4}=U_{i,j} \label{SolvedForUij}
+\end{equation}
+
+This formula takes the sum of the values of the surrounding cells, subtracts
+the value $4\pi h^2 q_{i,j}$, and divides this by 4 to approximate the new value.
+
+\section{Procedure}
+Using equation (\ref{SolvedForUij}), we can write a program to calculate the
+electric potential. The iterative process used is called the relaxation method,
+and the procedure for this method is shown below:
+
+Begin with equation (\ref{SolvedForUij}):
+
+\begin{enumerate}
+\item Make an initial guess for the solution at each cell. For simplicity, make
+      this guess 0 for all cells.
+\item Use these initial guesses on the right side of equation
+      (\ref{SolvedForUij}).
+\item Solve for $U_{i,j}$. This is the new estimate of the solution.
+\item Use the new estimate on the right side of equation (\ref{SolvedForUij}).
+\item Repeat this process until the values stop changing (or are changing so
+      slightly that they are negligible). This means the solution has converged
+      to the answer.
+\end{enumerate}
+
+This method works well for the interior cells of the box, but what about the
+cells on the boundary? When using the relaxation method on these cells, there
+may not be a cell adjacent to the box whose value can be used during the
+calculation. To avoid this issue, we create a bigger box around the first
+box that is one cell larger in each direction. Since these new cells are
+outside of the box containing the charge, they will all always have the value 0.
+This gives each cell inside the box all four adjacent cells necessary to carry
+out the relaxation method's calculations.
+
+\section{Results}
+For Assignment 10, we were asked to find the electric potential in the cell
+(25,50). The value at this particular cell was 6.18657880E-02 CGS units.
+
+Below is an image of a heat map, which depicts the converged solutions of
+Assignment 10.
+
+\begin{figure}[ht]
+\epsfig{file=Farkash_heatmap.eps}
+\caption{A heat map of the results}
+\end{figure}
+
+\end {document}

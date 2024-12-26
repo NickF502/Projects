@@ -1,0 +1,99 @@
+!Name: Nicholas Farkash
+!Purpose: To gain experience in using multi-dimensional arrays and to see how
+!         multi-dimensional arrays are used to solve a real world physics problem
+!Date: November 7th, 2021
+!Due: November 12th, 2021 @ 6:00PM
+
+! The electric potential of the cell (25,50) is 6.18657880E-02 CGS units
+
+program HW10
+  implicit none
+
+  integer, parameter :: NUMX = 100 !No. of cells in x direction
+  integer, parameter :: NUMY = 100 !No. of cells in y direction
+  real, parameter :: S = 0.1d0     !Size of cell
+  real,parameter :: PI=3.141592654
+  
+  real,dimension(0:NUMY+1,0:NUMX+1) :: u      !Old potential approximation
+  real,dimension(0:NUMY+1,0:NUMX+1) :: unew   !New potential approximation
+  real,dimension(0:NUMY+1,0:NUMX+1) :: q      !Charge density
+
+  real :: max_change = 1.0d0       !Change between u and unew
+  integer :: i,j                   !Loop indices
+
+  character(len=100) :: bufferwrite            !File name for data output
+  character(len=:),allocatable :: fnameout     !Trimmed version of name
+  
+  integer :: ioerror = 0           !Error check for I/O
+  integer :: lun                   !Logical Unit Number for I/O
+  real :: x,y                      !Variables for file I/O
+
+  
+  u=0.0d0           !Set the potential to 0 everywhere 
+  unew=u            !Initialize the new potential guess to the old guess
+
+  
+  q=0.0d0                     !Set the charge density to 0 everywhere
+  q(25,25) = -4.0d0           !Set the charge density to -4 at point (25,25)
+  q(75,75) = -4.0d0           !Set the charge density to -4 at point (75,75)
+
+  
+  do while(max_change > 1.0d-10)    !While the difference between potentials
+                                   !is small
+     do i=1,NUMY
+                              !Evaluate at all points
+        do j=1,NUMX
+
+           !Estimate the new potential field using relaxation method
+           unew(i,j) = ( u(i+1,j) + u(i-1,j) + u(i,j+1) + u(i,j-1) - &
+                         4.0d0*PI*(S**2)*q(i,j)) / 4.0d0
+           
+        enddo
+        
+     enddo 
+
+
+     !Determine how much the values have changed to see if loop should stop
+     max_change = maxval( abs(unew-u) )
+        
+     u = unew                 !Set the old guess equal to the new guess
+
+      
+  enddo
+
+  
+  !Propt user for file to output the date to
+  write(*,*) "Enter file name to write data to:"
+  read(*,*) bufferwrite
+  fnameout = trim(bufferwrite)
+
+  
+  open(newunit=lun, file=fnameout, status="new", action="write", iostat=ioerror)
+  if (ioerror/=0) then
+     write(*,*) "Data failed to write!"       !Check to see if file can
+     stop 1                                   !be opened safely. If so,
+  endif                                       !open the file.
+
+  
+  y = -0.5d0 * S      !Initialize the y-coord of the cell
+
+  
+  do j=0,NUMX+1       !Loop over all columns
+     x = -0.5d0 * S   !Initialize the x-coord of the cell
+
+     do i=0, NUMY+1   !Loop over each row
+        write(lun,*) x,y,unew(i,j)  !Write each cell's coords and potent. to file
+        x = x+S       !Increment x by one cell to move to next column
+     enddo
+     
+     write(lun,*) ""  !Insert blank space after row for spacing
+     y = y+S          !Increment y by one cell to move to next row
+
+  enddo
+
+  
+  close(unit=lun)     !Close file
+  
+  
+  stop 0
+end program HW10
